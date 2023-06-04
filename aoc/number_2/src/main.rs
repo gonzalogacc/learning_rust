@@ -86,7 +86,7 @@ fn main() {
     println!("Total points gathered: {sum}");
 
     let mut sum_2: u32 = 0;
-    for (i, p) in raw_plays.iter().enumerate(){
+    for p in &raw_plays {
         let points = decide_round_2(&p);
         sum_2 += points;
     }
