@@ -1,19 +1,6 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-
-fn load_data(filename: String) -> Vec<String> {
-    // Load file 
-    let file = File::open(filename).unwrap();
-    let reader = BufReader::new(file);
-
-    let mut data: Vec<String> = Vec::new();
-    for line in reader.lines() {
-        data.push(line.unwrap());
-    }
-    data
-}
-
 #[derive(Debug)]
 struct Move {
     cant: i32,
@@ -29,6 +16,21 @@ impl Move {
             to
         }
     }
+}
+
+fn load_data(filename: String) -> Vec<String> {
+    // Load file raw data
+    let file = File::open(filename).unwrap();
+    let reader = BufReader::new(file);
+
+    let mut data: Vec<String> = Vec::new();
+    for line in reader.lines() {
+        match line {
+            Ok(line) => data.push(line),
+            Err(e) => println!("Error: {}", e),
+        }
+    }
+    data
 }
 
 fn parse_towers(stack_data: &Vec<String>) -> Vec<Vec<String>> {
@@ -84,13 +86,12 @@ fn extract_stacking(data: &Vec<String>) -> (Vec<Vec<String>>, Vec<Move>) {
     (stack_data, move_data)
 }
 
-fn apply_movement_9000(stack: &mut Vec<Vec<String>>, moves: &Vec<Move>) {
+fn apply_movement_9000(stack: &mut Vec<Vec<String>>, moves: &Vec<Move>) -> String {
     // Single crate crane 
     for m in moves {
+        let from: usize = (m.from as usize)-1;
+        let to: usize = (m.to as usize)-1;
         for _ in 0..m.cant{
-            let from: usize = (m.from as usize)-1;
-            let to: usize = (m.to as usize)-1;
-
             let cand = stack[from].pop().unwrap();
             stack[to].push(cand);
         }
@@ -101,9 +102,10 @@ fn apply_movement_9000(stack: &mut Vec<Vec<String>>, moves: &Vec<Move>) {
         result += c.last().unwrap();
     }
     println!("{}", result);
+    result
 }
 
-fn apply_movement_9001(stack: &mut Vec<Vec<String>>, moves: &Vec<Move>) {
+fn apply_movement_9001(stack: &mut Vec<Vec<String>>, moves: &Vec<Move>) -> String {
     // Mutiple crates crane    
     for m in moves {
         //copy the last n
@@ -122,6 +124,7 @@ fn apply_movement_9001(stack: &mut Vec<Vec<String>>, moves: &Vec<Move>) {
         result += c.last().unwrap();
     }
     println!("{}", result);
+    result
 }
 
 fn main() {
@@ -129,7 +132,7 @@ fn main() {
     let (mut stack, moves) = extract_stacking(&data);
 
     //apply_movement_9000(&mut stack, &moves);
-    apply_movement_9001(&mut stack, &moves);
-    
+    let result = apply_movement_9001(&mut stack, &moves);
+    assert_eq!("TCGLQSLPW", result);    
 }
 
